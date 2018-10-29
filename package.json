@@ -1,0 +1,19 @@
+{
+  "name": "brainstone",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/srib1997/brainstone.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/srib1997/brainstone/issues"
+  },
+  "homepage": "https://github.com/srib1997/brainstone#readme",
+  "description": ""
+}

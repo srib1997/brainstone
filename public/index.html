@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>withladder</title>
+    <script src="/__/firebase/5.5.6/firebase-app.js"></script>
+    <script src="/__/firebase/5.5.6/firebase-auth.js"></script>
+    <script src="/__/firebase/init.js"></script>
+    <script src="https://cdn.firebase.com/libs/firebaseui/3.1.1/firebaseui.js"></script>
+    <link type="text/css" rel="stylesheet" href="https://cdn.firebase.com/libs/firebaseui/3.1.1/firebaseui.css" />
+    <style>
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+}
+
+#container {
+  max-width: 600px;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.clearfix {
+  clear: both;
+}
+
+.hidden {
+  display: none;
+}
+
+#user-info {
+  border: 1px solid #CCC;
+  clear: both;
+  margin: 0 auto 20px;
+  max-width: 400px;
+  padding: 10px;
+  text-align: left;
+}
+
+#photo-container {
+  background-color: #EEE;
+  border: 1px solid #CCC;
+  float: left;
+  height: 80px;
+  margin-right: 10px;
+  width: 80px;
+}
+
+#photo {
+  height: 80px;
+  margin: 0;
+  width: 80px;
+}
+
+@media (max-width: 300px) {
+  #photo-container,
+  #photo {
+    height: 40px;
+    width: 40px;
+  }
+}
+    </style>
+  </head>
+  <body>
+    <div id="container">
+      <h3>withladder</h3>
+      <div id="loading">Loading...</div>
+      <div id="loaded" class="hidden">
+        <div id="main">
+          <div id="user-signed-in" class="hidden">
+            <div id="user-info">
+              <div id="photo-container">
+                <img id="photo">
+              </div>
+              <div id="name"></div>
+              <div id="email"></div>
+              <div id="phone"></div>
+              <div class="clearfix"></div>
+            </div>
+            <p>
+              <button id="sign-out">sign out</button>
+            </p>
+          </div>
+          <div id="user-signed-out" class="hidden">
+            <h4>login</h4>
+            <div id="firebaseui-spa">
+              <div id="firebaseui-container"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      function getUiConfig() {
+        return {
+          'callbacks': {
+            'signInSuccessWithAuthResult': function(authResult, redirectUrl) {
+              if (authResult.user) {
+                handleSignedInUser(authResult.user);
+              }
+              return false;
+            }
+          },
+          'signInFlow': 'popup',
+          'signInOptions': [
+            firebase.auth.GoogleAuthProvider.PROVIDER_ID,
+            firebase.auth.FacebookAuthProvider.PROVIDER_ID,
+            firebase.auth.TwitterAuthProvider.PROVIDER_ID,
+            firebase.auth.GithubAuthProvider.PROVIDER_ID,
+            {
+              provider: firebase.auth.PhoneAuthProvider.PROVIDER_ID,
+              recaptchaParameters: {
+                size: 'invisible'
+              }
+            }
+          ]
+        };
+      }
+
+      var ui = new firebaseui.auth.AuthUI(firebase.auth());
+      ui.disableAutoSignIn();
+
+      var handleSignedInUser = function(user) {
+        document.getElementById('user-signed-in').style.display = 'block';
+        document.getElementById('user-signed-out').style.display = 'none';
+        document.getElementById('name').textContent = user.displayName;
+        document.getElementById('email').textContent = user.email;
+        document.getElementById('phone').textContent = user.phoneNumber;
+        if (user.photoURL){
+          var photoURL = user.photoURL;
+          if ((photoURL.indexOf('googleusercontent.com') != -1) ||
+              (photoURL.indexOf('ggpht.com') != -1)) {
+            photoURL = photoURL + '?sz=' + document.getElementById('photo').clientHeight;
+          }
+          document.getElementById('photo').src = photoURL;
+          document.getElementById('photo').style.display = 'block';
+        } else {
+          document.getElementById('photo').style.display = 'none';
+        }
+      };
+
+      var handleSignedOutUser = function() {
+        document.getElementById('user-signed-in').style.display = 'none';
+        document.getElementById('user-signed-out').style.display = 'block';
+        ui.start('#firebaseui-container', getUiConfig());
+      };
+
+      firebase.auth().onAuthStateChanged(function(user) {
+        document.getElementById('loading').style.display = 'none';
+        document.getElementById('loaded').style.display = 'block';
+        user ? handleSignedInUser(user) : handleSignedOutUser();
+      });
+
+      var initApp = function() {
+        document.getElementById('sign-out').addEventListener('click', function() {
+          firebase.auth().signOut();
+        });
+      };
+
+      window.addEventListener('load', initApp);
+    </script>
+  </body>
+</html>
